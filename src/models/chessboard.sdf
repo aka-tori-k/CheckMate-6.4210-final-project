@@ -1,0 +1,180 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="chessboard">
+    <!-- Base plate (underneath the squares) -->
+    <link name="board_base">
+      <visual name="base_visual">
+        <geometry>
+          <box>
+            <size>0.8 0.8 0.01</size>
+          </box>
+        </geometry>
+        <material>
+          <diffuse>0.4 0.3 0.2 1.0</diffuse>  <!-- Dark wood base -->
+        </material>
+      </visual>
+      <collision name="board_collision">
+        <geometry>
+          <box>
+            <size>0.8 0.8 0.01</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- Individual chess squares - creating the checkerboard pattern -->
+    <!-- Row 1 -->
+    <link name="square_a1"><visual name="square_a1_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>-0.35 -0.35 0.01 0 0 0</pose></link>
+    <link name="square_b1"><visual name="square_b1_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>-0.25 -0.35 0.01 0 0 0</pose></link>
+    <link name="square_c1"><visual name="square_c1_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>-0.15 -0.35 0.01 0 0 0</pose></link>
+    <link name="square_d1"><visual name="square_d1_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>-0.05 -0.35 0.01 0 0 0</pose></link>
+    <link name="square_e1"><visual name="square_e1_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>0.05 -0.35 0.01 0 0 0</pose></link>
+    <link name="square_f1"><visual name="square_f1_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>0.15 -0.35 0.01 0 0 0</pose></link>
+    <link name="square_g1"><visual name="square_g1_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>0.25 -0.35 0.01 0 0 0</pose></link>
+    <link name="square_h1"><visual name="square_h1_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>0.35 -0.35 0.01 0 0 0</pose></link>
+
+    <!-- Row 2 -->
+    <link name="square_a2"><visual name="square_a2_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>-0.35 -0.25 0.01 0 0 0</pose></link>
+    <link name="square_b2"><visual name="square_b2_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>-0.25 -0.25 0.01 0 0 0</pose></link>
+    <link name="square_c2"><visual name="square_c2_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>-0.15 -0.25 0.01 0 0 0</pose></link>
+    <link name="square_d2"><visual name="square_d2_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>-0.05 -0.25 0.01 0 0 0</pose></link>
+    <link name="square_e2"><visual name="square_e2_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>0.05 -0.25 0.01 0 0 0</pose></link>
+    <link name="square_f2"><visual name="square_f2_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>0.15 -0.25 0.01 0 0 0</pose></link>
+    <link name="square_g2"><visual name="square_g2_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>0.25 -0.25 0.01 0 0 0</pose></link>
+    <link name="square_h2"><visual name="square_h2_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>0.35 -0.25 0.01 0 0 0</pose></link>
+
+    <!-- Row 3 -->
+    <link name="square_a3"><visual name="square_a3_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>-0.35 -0.15 0.01 0 0 0</pose></link>
+    <link name="square_b3"><visual name="square_b3_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>-0.25 -0.15 0.01 0 0 0</pose></link>
+    <link name="square_c3"><visual name="square_c3_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>-0.15 -0.15 0.01 0 0 0</pose></link>
+    <link name="square_d3"><visual name="square_d3_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>-0.05 -0.15 0.01 0 0 0</pose></link>
+    <link name="square_e3"><visual name="square_e3_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>0.05 -0.15 0.01 0 0 0</pose></link>
+    <link name="square_f3"><visual name="square_f3_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>0.15 -0.15 0.01 0 0 0</pose></link>
+    <link name="square_g3"><visual name="square_g3_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>0.25 -0.15 0.01 0 0 0</pose></link>
+    <link name="square_h3"><visual name="square_h3_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>0.35 -0.15 0.01 0 0 0</pose></link>
+
+    <!-- Continue this pattern for all 8 rows... -->
+    <!-- Row 4 -->
+    <link name="square_a4"><visual name="square_a4_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>-0.35 -0.05 0.01 0 0 0</pose></link>
+    <link name="square_b4"><visual name="square_b4_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>-0.25 -0.05 0.01 0 0 0</pose></link>
+    <link name="square_c4"><visual name="square_c4_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>-0.15 -0.05 0.01 0 0 0</pose></link>
+    <link name="square_d4"><visual name="square_d4_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>-0.05 -0.05 0.01 0 0 0</pose></link>
+    <link name="square_e4"><visual name="square_e4_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>0.05 -0.05 0.01 0 0 0</pose></link>
+    <link name="square_f4"><visual name="square_f4_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>0.15 -0.05 0.01 0 0 0</pose></link>
+    <link name="square_g4"><visual name="square_g4_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>0.25 -0.05 0.01 0 0 0</pose></link>
+    <link name="square_h4"><visual name="square_h4_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>0.35 -0.05 0.01 0 0 0</pose></link>
+
+    <!-- Row 5 -->
+    <link name="square_a5"><visual name="square_a5_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>-0.35 0.05 0.01 0 0 0</pose></link>
+    <link name="square_b5"><visual name="square_b5_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>-0.25 0.05 0.01 0 0 0</pose></link>
+    <link name="square_c5"><visual name="square_c5_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>-0.15 0.05 0.01 0 0 0</pose></link>
+    <link name="square_d5"><visual name="square_d5_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>-0.05 0.05 0.01 0 0 0</pose></link>
+    <link name="square_e5"><visual name="square_e5_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>0.05 0.05 0.01 0 0 0</pose></link>
+    <link name="square_f5"><visual name="square_f5_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>0.15 0.05 0.01 0 0 0</pose></link>
+    <link name="square_g5"><visual name="square_g5_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>0.25 0.05 0.01 0 0 0</pose></link>
+    <link name="square_h5"><visual name="square_h5_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>0.35 0.05 0.01 0 0 0</pose></link>
+
+    <!-- Row 6 -->
+    <link name="square_a6"><visual name="square_a6_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.</diffuse></material></visual><pose>-0.35 0.15 0.01 0 0 0</pose></link>
+    <link name="square_b6"><visual name="square_b6_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>-0.25 0.15 0.01 0 0 0</pose></link>
+    <link name="square_c6"><visual name="square_c6_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.</diffuse></material></visual><pose>-0.15 0.15 0.01 0 0 0</pose></link>
+    <link name="square_d6"><visual name="square_d6_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>-0.05 0.15 0.01 0 0 0</pose></link>
+    <link name="square_e6"><visual name="square_e6_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.</diffuse></material></visual><pose>0.05 0.15 0.01 0 0 0</pose></link>
+    <link name="square_f6"><visual name="square_f6_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>0.15 0.15 0.01 0 0 0</pose></link>
+    <link name="square_g6"><visual name="square_g6_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.</diffuse></material></visual><pose>0.25 0.15 0.01 0 0 0</pose></link>
+    <link name="square_h6"><visual name="square_h6_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>0.35 0.15 0.01 0 0 0</pose></link>
+
+    <!-- Row 7 -->
+    <link name="square_a7"><visual name="square_a7_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>-0.35 0.25 0.01 0 0 0</pose></link>
+    <link name="square_b7"><visual name="square_b7_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>-0.25 0.25 0.01 0 0 0</pose></link>
+    <link name="square_c7"><visual name="square_c7_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>-0.15 0.25 0.01 0 0 0</pose></link>
+    <link name="square_d7"><visual name="square_d7_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>-0.05 0.25 0.01 0 0 0</pose></link>
+    <link name="square_e7"><visual name="square_e7_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>0.05 0.25 0.01 0 0 0</pose></link>
+    <link name="square_f7"><visual name="square_f7_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>0.15 0.25 0.01 0 0 0</pose></link>
+    <link name="square_g7"><visual name="square_g7_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>0.25 0.25 0.01 0 0 0</pose></link>
+    <link name="square_h7"><visual name="square_h7_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>0.35 0.25 0.01 0 0 0</pose></link>
+
+    <!-- Row 8 -->
+    <link name="square_a8"><visual name="square_a8_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>-0.35 0.35 0.01 0 0 0</pose></link>
+    <link name="square_b8"><visual name="square_b8_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>-0.25 0.35 0.01 0 0 0</pose></link>
+    <link name="square_c8"><visual name="square_c8_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>-0.15 0.35 0.01 0 0 0</pose></link>
+    <link name="square_d8"><visual name="square_d8_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>-0.05 0.35 0.01 0 0 0</pose></link>
+    <link name="square_e8"><visual name="square_e8_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>0.05 0.35 0.01 0 0 0</pose></link>
+    <link name="square_f8"><visual name="square_f8_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>0.15 0.35 0.01 0 0 0</pose></link>
+    <link name="square_g8"><visual name="square_g8_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.3 0.2 0.1 1.0</diffuse></material></visual><pose>0.25 0.35 0.01 0 0 0</pose></link>
+    <link name="square_h8"><visual name="square_h8_visual"><geometry><box><size>0.1 0.1 0.01</size></box></geometry><material><diffuse>0.9 0.8 0.6 1.0</diffuse></material></visual><pose>0.35 0.35 0.01 0 0 0</pose></link>
+
+    <!-- Wooden frame around the board -->
+    <link name="board_frame">
+      <visual name="frame_visual">
+        <geometry>
+          <box>
+            <size>0.9 0.9 0.03</size>
+          </box>
+        </geometry>
+        <material>
+          <diffuse>0.3 0.2 0.1 1.0</diffuse>  <!-- Dark wood color -->
+        </material>
+      </visual>
+      <pose>0 0 -0.005 0 0 0</pose>  <!-- Slightly below the board surface -->
+    </link>
+
+    <!-- Legs for the chessboard -->
+    <link name="leg_1">
+      <visual name="leg_1_visual">
+        <geometry>
+          <cylinder>
+            <radius>0.02</radius>
+            <length>0.1</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <diffuse>0.3 0.2 0.1 1.0</diffuse>
+        </material>
+      </visual>
+      <pose>-0.4 -0.4 -0.07 0 0 0</pose>
+    </link>
+    <link name="leg_2">
+      <visual name="leg_2_visual">
+        <geometry>
+          <cylinder>
+            <radius>0.02</radius>
+            <length>0.1</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <diffuse>0.3 0.2 0.1 1.0</diffuse>
+        </material>
+      </visual>
+      <pose>0.4 -0.4 -0.07 0 0 0</pose>
+    </link>
+    <link name="leg_3">
+      <visual name="leg_3_visual">
+        <geometry>
+          <cylinder>
+            <radius>0.02</radius>
+            <length>0.1</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <diffuse>0.3 0.2 0.1 1.0</diffuse>
+        </material>
+      </visual>
+      <pose>-0.4 0.4 -0.07 0 0 0</pose>
+    </link>
+    <link name="leg_4">
+      <visual name="leg_4_visual">
+        <geometry>
+          <cylinder>
+            <radius>0.02</radius>
+            <length>0.1</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <diffuse>0.3 0.2 0.1 1.0</diffuse>
+        </material>
+      </visual>
+      <pose>0.4 0.4 -0.07 0 0 0</pose>
+    </link>
+  </model>
+</sdf>

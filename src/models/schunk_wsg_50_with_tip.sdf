@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="schunk_wsg_50">
+    <link name="body">
+      <visual name="gripper_body">
+        <geometry>
+          <box>
+            <size>0.1 0.08 0.05</size>
+          </box>
+        </geometry>
+        <material>
+          <diffuse>0.1 0.1 0.1 1.0</diffuse>
+        </material>
+      </visual>
+    </link>
+    
+    <link name="left_finger">
+      <visual name="left_finger_visual">
+        <geometry>
+          <box>
+            <size>0.02 0.01 0.06</size>
+          </box>
+        </geometry>
+        <material>
+          <diffuse>0.7 0.7 0.7 1.0</diffuse>
+        </material>
+      </visual>
+      <pose>-0.03 0 0 0 0 0</pose>
+    </link>
+    
+    <link name="right_finger">
+      <visual name="right_finger_visual">
+        <geometry>
+          <box>
+            <size>0.02 0.01 0.06</size>
+          </box>
+        </geometry>
+        <material>
+          <diffuse>0.7 0.7 0.7 1.0</diffuse>
+        </material>
+      </visual>
+      <pose>0.03 0 0 0 0 0</pose>
+    </link>
+    
+    <joint name="left_finger_joint" type="prismatic">
+      <parent>body</parent>
+      <child>left_finger</child>
+      <axis>
+        <xyz>-1 0 0</xyz>
+        <limit>
+          <lower>-0.05</lower>
+          <upper>0</upper>
+        </limit>
+      </axis>
+    </joint>
+    
+    <joint name="right_finger_joint" type="prismatic">
+      <parent>body</parent>
+      <child>right_finger</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0.05</upper>
+        </limit>
+      </axis>
+    </joint>
+  </model>
+</sdf>
