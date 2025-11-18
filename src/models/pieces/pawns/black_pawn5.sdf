@@ -1,9 +1,9 @@
 <?xml version='1.0'?>
 <sdf version='1.7'>
-  <model name='white_bishop'>
-    <link name='link_0'>
+  <model name='black_pawn5'>
+    <link name='black_pawn5'>
       <inertial>
-        <mass>1</mass>
+        <mass>0.01</mass>
         <inertia>
           <ixx>0.166667</ixx>
           <ixy>0</ixy>
@@ -12,19 +12,22 @@
           <iyz>0</iyz>
           <izz>0.166667</izz>
         </inertia>
+        <pose>0 0 0 0 -0 0</pose>
       </inertial>
-      <pose>0 0 0 0 1.0 0</pose>
+      <pose>0 0 0 0 -0 0</pose>
+      <gravity>1</gravity>
+      <kinematic>0</kinematic>
       <visual name='visual'>
         <pose>0 0 0 1.5708 0 0</pose>
         <geometry>
           <mesh>
-            <uri>/workspaces/CheckMate-6.4210-final-project/src/models/pieces/bishops/bishop_mesh.obj</uri>
+            <uri>/workspaces/CheckMate-6.4210-final-project/src/models/pieces/pawns/pawn_mesh.obj</uri>
             <scale>4 4 4</scale>
           </mesh>
         </geometry>
         <material>
-          <ambient>0.6 0.6 0.6 1</ambient>
-          <diffuse>0.9 0.9 0.9 1</diffuse>
+          <ambient>0.05 0.05 0.05 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
           <specular>0 0 0 1</specular>
         </material>
       </visual>
@@ -33,7 +36,7 @@
         <pose>0 0 0 1.5708 0 0</pose>
         <geometry>
           <mesh>
-            <uri>/workspaces/CheckMate-6.4210-final-project/src/models/pieces/bishops/bishop_mesh.obj</uri>
+            <uri>/workspaces/CheckMate-6.4210-final-project/src/models/pieces/pawns/pawn_mesh.obj</uri>
             <scale>4 4 4</scale>
           </mesh>
         </geometry>

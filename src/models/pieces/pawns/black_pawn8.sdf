@@ -1,7 +1,7 @@
 <?xml version='1.0'?>
 <sdf version='1.7'>
-  <model name='white_pawn'>
-    <link name='link_0'>
+  <model name='black_pawn8'>
+    <link name='black_pawn8'>
       <inertial>
         <mass>0.01</mass>
         <inertia>
@@ -16,7 +16,6 @@
       </inertial>
       <pose>0 0 0 0 -0 0</pose>
       <gravity>1</gravity>
-      <self_collide>0</self_collide>
       <kinematic>0</kinematic>
       <visual name='visual'>
         <pose>0 0 0 1.5708 0 0</pose>
@@ -27,8 +26,8 @@
           </mesh>
         </geometry>
         <material>
-          <ambient>0.6 0.6 0.6 1</ambient>
-          <diffuse>0.9 0.9 0.9 1</diffuse>
+          <ambient>0.05 0.05 0.05 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
           <specular>0 0 0 1</specular>
         </material>
       </visual>

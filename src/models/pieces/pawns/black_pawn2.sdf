@@ -1,7 +1,7 @@
 <?xml version='1.0'?>
 <sdf version='1.7'>
-  <model name='black_king'>
-    <link name='black_king'>
+  <model name='black_pawn2'>
+    <link name='black_pawn2'>
       <inertial>
         <mass>0.01</mass>
         <inertia>
@@ -14,14 +14,14 @@
         </inertia>
         <pose>0 0 0 0 -0 0</pose>
       </inertial>
-      <pose>-0 -0 0 0 -0 0</pose>
+      <pose>0 0 0 0 -0 0</pose>
       <gravity>1</gravity>
       <kinematic>0</kinematic>
       <visual name='visual'>
         <pose>0 0 0 1.5708 0 0</pose>
         <geometry>
           <mesh>
-            <uri>/workspaces/CheckMate-6.4210-final-project/src/models/pieces/kings/king_mesh.obj</uri>
+            <uri>/workspaces/CheckMate-6.4210-final-project/src/models/pieces/pawns/pawn_mesh.obj</uri>
             <scale>4 4 4</scale>
           </mesh>
         </geometry>
@@ -36,7 +36,7 @@
         <pose>0 0 0 1.5708 0 0</pose>
         <geometry>
           <mesh>
-            <uri>/workspaces/CheckMate-6.4210-final-project/src/models/pieces/kings/king_mesh.obj</uri>
+            <uri>/workspaces/CheckMate-6.4210-final-project/src/models/pieces/pawns/pawn_mesh.obj</uri>
             <scale>4 4 4</scale>
           </mesh>
         </geometry>

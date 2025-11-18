@@ -1,7 +1,7 @@
 <?xml version='1.0'?>
 <sdf version='1.7'>
-  <model name='black_rook'>
-    <link name='link_0'>
+  <model name='white_rook2'>
+    <link name='white_rook2'>
       <inertial>
         <mass>0.01</mass>
         <inertia>
@@ -26,8 +26,8 @@
           </mesh>
         </geometry>
         <material>
-          <ambient>0.05 0.05 0.05 1</ambient>
-          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <ambient>0.6 0.6 0.6 1</ambient>
+          <diffuse>0.9 0.9 0.9 1</diffuse>
           <specular>0 0 0 1</specular>
         </material>
       </visual>

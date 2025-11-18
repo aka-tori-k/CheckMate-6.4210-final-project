@@ -1,7 +1,7 @@
 <?xml version='1.0'?>
 <sdf version='1.7'>
   <model name='white_queen'>
-    <link name='link_0'>
+    <link name='white_queen'>
       <inertial>
         <mass>0.1</mass>
         <inertia>

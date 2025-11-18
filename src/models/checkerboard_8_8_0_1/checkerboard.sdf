@@ -3,6 +3,13 @@
   <model name="checkerboard_8_8_0_1">
   <static>true</static>
   <link name="checkerboard_8_8_0_1_body">
+  <collision name="board_collision">
+    <geometry>
+      <box>
+        <size>1.0 1.0 0.01</size>
+      </box>
+    </geometry>
+  </collision>
       <visual name="checker_0_0">
         <pose>-0.35000000000000003 -0.35000000000000003 0 0 0 0</pose>
         <geometry>
