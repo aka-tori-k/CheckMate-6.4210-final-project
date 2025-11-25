@@ -14,7 +14,7 @@ def add_rgbd_sensor(builder, plant, parser, scene_graph, iiwa):
     #adjust X_PB if move sensor
     sensor = RgbdSensor(
         parent_id=frame_id,
-        X_PB=RigidTransform([0, 0, 0.16]),
+        X_PB=RigidTransform([0.1, 0, 0.1]),
         color_camera=ColorRenderCamera(
             core=RenderCameraCore(
                 renderer_name="vtk",
@@ -48,7 +48,8 @@ def add_rgbd_sensor(builder, plant, parser, scene_graph, iiwa):
     wrist_frame = plant.GetFrameByName("iiwa_link_7", iiwa)
     camera_frame = plant.GetFrameByName("base", camera_model)   
 
-    #adjust p if move physicl camera
+    # adjust p if move physical camera
+    #will need to move this bc curretly causing collision error
     plant.WeldFrames(wrist_frame, camera_frame, 
                      RigidTransform(R=RotationMatrix.Identity(),p=np.array([0, 0, 0.11]).reshape((3, 1)))
                      )

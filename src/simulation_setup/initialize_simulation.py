@@ -4,10 +4,12 @@ from pydrake.all import (
     MeshcatPointCloudVisualizer, DepthImageToPointCloud, 
     BaseField, CameraInfo, PixelType, RigidTransform, RotationMatrix
 )
-from add_pieces_to_plant import add_pieces_to_plant
-from set_initial_piece_poses import set_initial_piece_poses
-from add_robot_and_gripper import add_robot_and_gripper
-from add_rgbd_sensor import add_rgbd_sensor
+import sys
+sys.path.append("/workspaces/CheckMate-6.4210-final-project/src")
+from simulation_setup.add_pieces_to_plant import add_pieces_to_plant
+from simulation_setup.set_initial_piece_poses import set_initial_piece_poses
+from simulation_setup.add_robot_and_gripper import add_robot_and_gripper
+from simulation_setup.add_rgbd_sensor import add_rgbd_sensor
 import numpy as np
 
 def initialize_simulation():
@@ -57,6 +59,7 @@ def initialize_simulation():
 
     plant = set_initial_piece_poses(plant, plant_context, instances)
 
+    
     robot_initial_pose = np.array([
         1.5,    # joint 1
         -1,     # joint 2
@@ -66,6 +69,9 @@ def initialize_simulation():
         1.8,    # joint 6
         1.5     # joint 7
         ])
+
+    #initial pose for path planning tests
+    # robot_initial_pose = [0, 0, 0, -1.57, 0, 1.57, 0]
 
     plant.SetPositions(plant_context, iiwa, robot_initial_pose)
 
