@@ -7,11 +7,11 @@ def square_to_pose(file_letter, rank_number, height=0.0):
     """
     Returns a RigidTransform placing a piece on a chess square.
     file_letter: 'a' to 'h'
-    rank_number: 1 to 8
+    rank_number: '1' to '8'
     height: piece offset above the board
     """
     file_index = ord(file_letter.lower()) - ord('a')   # a=0, b=1, ...
-    rank_index = rank_number - 1                      # 1→0, 8→7
+    rank_index = int(rank_number) - 1                      # 1→0, 8→7
 
     x = (file_index + 0.5) * SQUARE - BOARD_HALF
     y = (rank_index + 0.5) * SQUARE - BOARD_HALF
