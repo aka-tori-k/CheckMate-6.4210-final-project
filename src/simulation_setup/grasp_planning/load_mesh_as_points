@@ -1,6 +1,0 @@
-import trimesh
-
-def load_mesh_as_points(path, num_samples=5000):
-    mesh = trimesh.load(path)
-    pts, _ = trimesh.sample.sample_surface(mesh, num_samples)
-    return pts
