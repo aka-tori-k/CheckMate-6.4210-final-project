@@ -2,9 +2,9 @@ import numpy as np
 from pydrake.all import RigidTransform
 from pydrake.math import RotationMatrix
 from manipulation.icp import IterativeClosestPoint
-# from load_mesh_as_points import load_mesh_as_points
-# from simulation_setup.square_to_pose import square_to_pose
-
+import sys
+sys.path.append("/workspaces/CheckMate-6.4210-final-project/src")
+from simulation_setup.square_to_pose import square_to_pose
 import trimesh
 
 def load_mesh_as_points(path, num_samples=5000):
@@ -86,6 +86,10 @@ def estimate_piece_pose(pc, piece_type, square, T_world_board):
     # so you need to sample mesh points from the OBJ.
 
     mesh_pts = load_mesh_as_points(obj_path)
+    mesh = trimesh.load(obj_path)
+    print(mesh.bounds)
+    print(mesh.scale)
+    print(mesh.extents)
 
     # ---- 6. Run ICP in BOARD frame ------------------------------------------
     # mesh_pts: model points in board frame
@@ -98,26 +102,10 @@ def estimate_piece_pose(pc, piece_type, square, T_world_board):
     # T_world_piece = T_world_board @ T_board_piece
 
 
-    return X_WO_hat.GetAsMatrix4()
+    return X_WO_hat.GetAsMatrix4(), cropped
 
 
 
 
 SQUARE = 0.1      # your board square size (meters)
 BOARD_HALF = 4 * SQUARE   # 8 squares / 2 = 4
-
-def square_to_pose(file_letter, rank_number, height=0.0):
-    """
-    Returns a RigidTransform placing a piece on a chess square.
-    file_letter: 'a' to 'h'
-    rank_number: '1' to '8'
-    height: piece offset above the board
-    """
-    file_index = ord(file_letter.lower()) - ord('a')   # a=0, b=1, ...
-    rank_index = int(rank_number) - 1                      # 1→0, 8→7
-
-    x = (file_index + 0.5) * SQUARE - BOARD_HALF
-    y = (rank_index + 0.5) * SQUARE - BOARD_HALF
-    z = height
-
-    return RigidTransform([x, y, z])

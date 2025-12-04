@@ -1,4 +1,7 @@
-from square_to_pose import square_to_pose
+import sys
+sys.path.append("/workspaces/CheckMate-6.4210-final-project/src")
+
+from simulation_setup.square_to_pose import square_to_pose
 
 def set_initial_piece_poses(plant, context, instances):
     """
