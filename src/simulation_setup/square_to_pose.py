@@ -3,7 +3,7 @@ from pydrake.all import RigidTransform
 SQUARE = 0.1      # your board square size (meters)
 BOARD_HALF = 4 * SQUARE   # 8 squares / 2 = 4
 
-def square_to_pose(file_letter, rank_number, height=0.01):
+def square_to_pose(file_letter, rank_number, height=0.0):
     """
     Returns a RigidTransform placing a piece on a chess square.
     file_letter: 'a' to 'h'
