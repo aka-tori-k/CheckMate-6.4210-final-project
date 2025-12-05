@@ -9,6 +9,8 @@ import time
 
 from simulation_setup.initialize_simulation import initialize_simulation
 
+def downsample_path(path, stride=3):
+    return path[::stride]
 
 def path_to_fullstate_trajectory(path, dt=0.05):
     """
@@ -46,12 +48,14 @@ if __name__ == "__main__":
     # You should sample a start state from the *current* plant positions if you want realistic planning
     # Get current robot positions:
     iiwa = plant.GetModelInstanceByName("iiwa7")
-    # q_now = plant.GetPositions(plant_context, iiwa)
+    q_start = plant.GetPositions(plant_context, iiwa)
+    q_goal = sample_random_q(plant)
 
-    # # sample a new random goal (or use any target you like)
-    # q_goal = sample_random_q(plant)
-    q_start = np.array([ 1.14481155, -1.1725643, 0.74546698, -0.5089159, -2.85271485, 0.85927073, 0.44859717]) 
-    q_goal = np.array([ 0.29921316, -0.8316761, 0.59264661, -1.32333652, 0.16495925, -0.93726397, -1.58362034])
+    # collision free start and goal for testing
+    # q_start = np.array([1.14481155, -1.1725643, 0.74546698, -0.5089159, -2.85271485, 0.85927073, 0.44859717]) 
+    # q_goal = np.array([0.29921316, -0.8316761, 0.59264661, -1.32333652, 0.16495925, -0.93726397, -1.58362034])
+    
+    # print("Current robot positions (q_start):", q_start)
 
     problem = IiwaProblem(
         q_start=q_start,
@@ -63,9 +67,13 @@ if __name__ == "__main__":
         diagram_context=diagram_context,
         plant_context=plant_context,
     )
-    
+
+    #debugging prints
+    # print(problem.start_in_collision)
+    # print(problem.goal_in_collision)
     
     path, iters = rrt_connect_planning(problem, max_iterations=5000, eps_connect=0.05)
+    path = downsample_path(path, stride=3) #higher stride is faster path
     problem.draw_path(path, plant, diagram_context, plant_context,meshcat)
-    traj = path_to_fullstate_trajectory(path, dt=0.05)
+    traj = path_to_fullstate_trajectory(path, dt=0.005) #lower dt is faster execution
     execute_trajectory(traj, simulator, traj_source)

@@ -151,42 +151,31 @@ class IiwaProblem(Problem):
             time.sleep(dt)
 
     def draw_path(self, path, plant, diagram_context, plant_context, meshcat, link_name="iiwa_link_7"):
-        """
-        Draws the RRT path as a 3D polyline in Meshcat using the end-effector position.
-        """
-
-        # Get end effector frame
         frame_EE = plant.GetFrameByName(link_name)
 
         pts = []
 
+        # create a temporary context so we don't overwrite the real robot position
+        tmp_context = plant.CreateDefaultContext()
+
         for q in path:
             q = np.array(q)
 
-            # Update joint positions
-            plant.SetPositions(plant_context, plant.GetModelInstanceByName("iiwa7"), q)
+            # set q in temp context ONLY
+            plant.SetPositions(tmp_context, plant.GetModelInstanceByName("iiwa7"), q)
 
-            # Get end effector pose in world
-            X_WE = frame_EE.CalcPoseInWorld(plant_context)
-            p_WE = X_WE.translation()
-            pts.append(p_WE)
+            # compute EE pose w.r.t. temp context
+            X_WE = frame_EE.CalcPoseInWorld(tmp_context)
+            pts.append(X_WE.translation())
 
-        pts = np.vstack(pts)   # shape = (N,3)
-        print(type(np.asfortranarray(pts.T.astype(np.float64))))
-        print(np.asfortranarray(pts.T.astype(np.float64)).shape)
-        # Draw polyline in Meshcat
+        pts = np.vstack(pts)
+
         meshcat.SetLine(
             path="/rrt_path",
-            vertices=np.asfortranarray(pts.T.astype(np.float64)),       # Meshcat expects shape (3,N)
+            vertices=np.asfortranarray(pts.T),
             line_width=0.01,
-            #set color equal to red
             rgba=Rgba(1, 0, 0, 1)
         )
-
-        print(f"Path drawn with {pts.shape[0]} end-effector points.")
-
-        
-
 
 class RRT_tools:
     def __init__(self, problem: IiwaProblem) -> None:
@@ -244,8 +233,6 @@ def rrt_planning(
     rrt_tools = RRT_tools(problem)
     q_goal = problem.goal
     q_start = problem.start
-
-    
 
     for k in range(max_iterations):
 
@@ -334,7 +321,7 @@ class RRT_Connect_tools(RRT_tools):
 def rrt_connect_planning(
     problem: IiwaProblem, max_iterations: int = 1000, eps_connect: float = 1e-2
 ) -> tuple[list[tuple] | None, int]:
-
+    
     tools = RRT_Connect_tools(problem)
     T_start = tools.rrt_tree                  # Tree rooted at q_start
     T_goal  = tools.create_new_tree(problem.goal)  # Tree rooted at q_goal

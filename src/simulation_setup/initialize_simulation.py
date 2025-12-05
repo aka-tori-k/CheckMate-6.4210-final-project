@@ -155,7 +155,9 @@ def initialize_simulation(traj=None, realtime_rate=1.0, kp_scale=400.0, kd_scale
 
     # initial pose for path planning tests
     # robot_initial_pose = [0, 0, 0, -1.57, 0, 1.57, 0]
-    robot_initial_pose = [0, -0.5, 0, -1.0, 0, 1.0, 0]
+
+    robot_initial_pose = np.array([1.14481155, -1.1725643, 0.74546698, -0.5089159, -2.85271485, 0.85927073, 0.44859717]) 
+    # robot_initial_pose = [0, -0.5, 0, -1.0, 0, 1.0, 0]
     plant.SetPositions(plant_context, iiwa_instance, robot_initial_pose)
 
     simulator.Initialize()
