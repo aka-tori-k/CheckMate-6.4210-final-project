@@ -27,7 +27,7 @@ def path_to_fullstate_trajectory(path, dt=0.05):
     return traj
 
 
-def execute_trajectory(traj, simulator, traj_source):
+def execute_trajectory(traj, simulator, traj_source, diagram_context, logger_state, logger_desired, logger_torque):
     # Upload the trajectory into the running modifiable TrajectorySource
     print("Uploading trajectory to controller...")
     traj_source.set_trajectory(traj)
@@ -42,9 +42,26 @@ def execute_trajectory(traj, simulator, traj_source):
     # small pause (optional) before next plan
     time.sleep(0.2)
 
+    log_state_context = logger_state.GetMyContextFromRoot(diagram_context)
+    log_state = logger_state.GetLog(log_state_context)
+    times_state = log_state.sample_times()
+    x_state = log_state.data()  # shape (14, N)
+
+    # Desired State Log
+    log_desired_context = logger_desired.GetMyContextFromRoot(diagram_context)
+    log_desired = logger_desired.GetLog(log_desired_context)
+    times_des = log_desired.sample_times()
+    x_des = log_desired.data()  # shape (14, N)
+
+    # Torque Log
+    log_torque_context = logger_torque.GetMyContextFromRoot(diagram_context)
+    log_torque = logger_torque.GetLog(log_torque_context)
+    times_tau = log_torque.sample_times()
+    torques = log_torque.data()  # shape (7, N)
+    return times_state, x_state, times_des, x_des, times_tau, torques
     
 if __name__ == "__main__":
-    simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat2, diagram, traj_source = initialize_simulation(traj=None)
+    simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat2, diagram, traj_source, logger_state, logger_desired, logger_torque = initialize_simulation(traj=None)
     # You should sample a start state from the *current* plant positions if you want realistic planning
     # Get current robot positions:
     iiwa = plant.GetModelInstanceByName("iiwa7")
@@ -69,11 +86,14 @@ if __name__ == "__main__":
     )
 
     #debugging prints
-    # print(problem.start_in_collision)
-    # print(problem.goal_in_collision)
+    print(problem.start_in_collision)
+    print(problem.goal_in_collision)
     
     path, iters = rrt_connect_planning(problem, max_iterations=5000, eps_connect=0.05)
     path = downsample_path(path, stride=3) #higher stride is faster path
     problem.draw_path(path, plant, diagram_context, plant_context,meshcat)
     traj = path_to_fullstate_trajectory(path, dt=0.005) #lower dt is faster execution
-    execute_trajectory(traj, simulator, traj_source)
+    times_state, x_state, times_des, x_des, times_tau, torques = execute_trajectory(traj, simulator, traj_source, diagram_context, logger_state, logger_desired, logger_torque)
+    print("State log shape:", x_state.shape)
+    print("Desired log shape:", x_des.shape)
+    print("Torque log shape:", torques.shape)

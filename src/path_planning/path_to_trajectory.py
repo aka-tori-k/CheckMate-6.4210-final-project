@@ -26,11 +26,12 @@ def path_to_fullstate_trajectory(path, dt=0.05):
     return traj
 
 
+
 if __name__ == "__main__":
     #init sim
     simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat, diagram = initialize_simulation()
-    #get a path
-    simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat, diagram = initialize_simulation()
+    # #get a path
+    # simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat, diagram = initialize_simulation()
     q_start = sample_random_q(plant)
     q_goal  = sample_random_q(plant)
 
@@ -50,5 +51,4 @@ if __name__ == "__main__":
     path, iters = rrt_connect_planning(problem, max_iterations=5000, eps_connect=0.05)
 
     traj = path_to_trajectory(path, dt=0.05)
-    print(traj)
 

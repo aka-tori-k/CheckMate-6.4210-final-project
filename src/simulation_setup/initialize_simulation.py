@@ -15,6 +15,7 @@ from pydrake.all import (
     InverseDynamicsController,
     MultibodyPlant,
     ConstantVectorSource,
+    LogVectorOutput
 )
 import numpy as np
 import sys
@@ -125,6 +126,28 @@ def initialize_simulation(traj=None, realtime_rate=1.0, kp_scale=400.0, kd_scale
     # Wire controller torque -> world plant actuation input
     builder.Connect(id_controller.get_output_port_control(), plant.get_actuation_input_port(iiwa_instance))
 
+    ############################################
+    # LOG ACTUAL STATE (q, v)
+    ############################################
+    logger_state = LogVectorOutput(
+        plant.get_state_output_port(iiwa_instance), builder
+    )
+
+    ############################################
+    # LOG DESIRED STATE ([q; qdot] from traj_source)
+    ############################################
+    logger_desired = LogVectorOutput(
+        traj_src_system.get_output_port(0), builder
+    )
+
+    ############################################
+    # LOG CONTROLLER TORQUES
+    ############################################
+    logger_torque = LogVectorOutput(
+        id_controller.get_output_port_control(), builder
+    )
+
+
     # Optionally zero external generalized forces for safety
     try:
         zero_tau = ConstantVectorSource(np.zeros(nq))
@@ -187,7 +210,10 @@ def initialize_simulation(traj=None, realtime_rate=1.0, kp_scale=400.0, kd_scale
     print(meshcat.web_url())
 
     # Return everything + the handle to the traj_source system so caller can set trajectories at runtime
-    return simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat, diagram, traj_source
+    return (simulator, plant, plant_context, meshcat, scene_graph, 
+            diagram_context, meshcat, diagram, traj_source, logger_state, 
+            logger_desired, logger_torque)
+
 
 
 
