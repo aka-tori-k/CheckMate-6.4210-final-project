@@ -1,3 +1,4 @@
-# Ignore all files and folders starting with a period
+# Ignore hidden folders/files and cache
 .*/
 __pycache__/
+.DS_Store
