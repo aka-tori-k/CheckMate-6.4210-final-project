@@ -1,11 +1,12 @@
-from chess_interface import get_best_move, apply_move, is_game_over, close_engine
+from chess_interface import ChessInterface
 
 if __name__ == "__main__":
     # Test 5 moves
+    chess_interface = ChessInterface()
     for i in range(5):
-        meta = get_best_move()
+        meta = chess_interface.get_best_move()
         print(meta)
         
-        apply_move(meta["move"])  # update board
+        chess_interface.apply_move(meta["move"])  # update board
     
-    close_engine()
+    chess_interface.close_engine()
