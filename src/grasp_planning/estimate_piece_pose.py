@@ -95,14 +95,8 @@ def estimate_piece_pose(pc, piece_type, square, T_world_board):
     # mesh_pts: model points in board frame
     # pc_board: observed points in board frame
     X_WO_hat, icp_info = IterativeClosestPoint(mesh_pts.T, pc_board.T)
-    # T_board_piece = icp.RegisterCloud(pc_board.T, mesh_pts.T)
 
-    # # T_board_piece is a RigidTransform
-    # # Convert to world frame:
-    # T_world_piece = T_world_board @ T_board_piece
-
-
-    return X_WO_hat.GetAsMatrix4(), cropped
+    return X_WO_hat, cropped
 
 
 

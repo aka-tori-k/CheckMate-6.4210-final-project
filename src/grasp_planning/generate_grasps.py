@@ -15,9 +15,8 @@ OUTPUT_JSON = os.path.join(HERE, "grasp_library.json")
 
 
 # pieces to process
-# PIECE_TYPES = ["pawn", "rook", "knight", "bishop", "queen", "king"]
-PIECE_TYPES = ["knight"]
-
+PIECE_TYPES = ["pawn", "rook", "knight", "bishop", "queen", "king"]
+# PIECE_TYPES = ["pawn"]
 
 def get_mesh_path(piece_type: str) -> str:
     """Return full filesystem path for a piece mesh."""
@@ -30,13 +29,9 @@ def get_mesh_path(piece_type: str) -> str:
 
 def transform_to_dict(g: dict):
     """Convert a RigidTransform to JSON-serializable dict."""
-    T = g["pose"]
     return {
-        "rotation": T.rotation().matrix().tolist(),
-        "translation": T.translation().tolist(),
-        "p_i": g["p_i"],
-        "p_j": g["p_j"]
-
+        "rotation": g.rotation().matrix().tolist(),
+        "translation": g.translation().tolist(),
     }
 
 
@@ -52,7 +47,6 @@ def main():
 
         grasps = generate_mesh_grasps(mesh_path, n_candidates=8)
 
-        # grasp_db[piece_name] = [transform_to_dict(g) for g in grasps]
         grasp_db[piece_name] = [transform_to_dict(g) for g in grasps]
 
     # Write to JSON

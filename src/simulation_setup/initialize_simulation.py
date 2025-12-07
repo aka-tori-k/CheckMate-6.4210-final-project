@@ -26,6 +26,7 @@ from simulation_setup.set_initial_piece_poses import set_initial_piece_poses
 from simulation_setup.add_robot_and_gripper import add_robot_and_gripper
 from simulation_setup.add_rgbd_sensor import add_rgbd_sensor
 from simulation_setup.ModifiableTrajectorySource import ModifiableTrajectorySource
+from grasp_planning.load_grasp_library import load_grasp_library
 
 def initialize_simulation(traj=None, realtime_rate=1.0, kp_scale=400.0, kd_scale=40.0):
     """
@@ -179,8 +180,9 @@ def initialize_simulation(traj=None, realtime_rate=1.0, kp_scale=400.0, kd_scale
     # initial pose for path planning tests
     # robot_initial_pose = [0, 0, 0, -1.57, 0, 1.57, 0]
 
-    robot_initial_pose = np.array([1.14481155, -1.1725643, 0.74546698, -0.5089159, -2.85271485, 0.85927073, 0.44859717]) 
+    # robot_initial_pose = np.array([1.14481155, -1.1725643, 0.74546698, -0.5089159, -2.85271485, 0.85927073, 0.44859717]) 
     # robot_initial_pose = [0, -0.5, 0, -1.0, 0, 1.0, 0]
+    robot_initial_pose = np.array([ 2.16290727,  0.87296098,  0.15944027, -1.6646637,  -1.3256489,   0.56903973, 0.97472482])
     plant.SetPositions(plant_context, iiwa_instance, robot_initial_pose)
 
     simulator.Initialize()
@@ -218,6 +220,6 @@ def initialize_simulation(traj=None, realtime_rate=1.0, kp_scale=400.0, kd_scale
 
 
 if __name__ == "__main__":
-    simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat, diagram, traj_source = initialize_simulation()
+    simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat, diagram, traj_source, logger_state, logger_desired, logger_torque = initialize_simulation()
     while True:
         pass

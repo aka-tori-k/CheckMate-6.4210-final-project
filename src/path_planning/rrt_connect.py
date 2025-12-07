@@ -369,9 +369,12 @@ def sample_random_q(plant):
     return np.array(q)
 
 if __name__ == "__main__":
-    simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat, diagram = initialize_simulation()
+    #init sim
+
+    simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat, diagram, traj_source, logger_state, logger_desired, logger_torque = initialize_simulation()
     q_start = sample_random_q(plant)
-    q_goal  = sample_random_q(plant)
+    # q_goal  = sample_random_q(plant)
+    q_goal = [1.09605608, 1.53445794, 1.14210436, -1.68680914, 2.4925027, -1.04304971,-0.48970514]
 
     print("Random start:", q_start)
     print("Random goal:", q_goal)
@@ -386,7 +389,7 @@ if __name__ == "__main__":
         diagram_context=diagram_context,
         plant_context=plant_context,
     )
-    path, iters = rrt_connect_planning(problem, max_iterations=5000, eps_connect=0.05)
+    path, iters = rrt_connect_planning(problem, max_iterations=25000, eps_connect=0.05)
     # print(path)
     print(f"RRT-Connect finished in {iters} iterations.")
     if path is not None:

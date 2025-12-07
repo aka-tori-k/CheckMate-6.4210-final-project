@@ -22,18 +22,3 @@ def load_grasp_library():
         grasp_library[piece_type] = transforms
 
     return grasp_library
-
-
-def load_points():
-    current_dir = os.path.dirname(__file__)
-    path = os.path.join(current_dir, "grasp_library.json")
-
-    with open(path, "r") as f:
-        data = json.load(f)
-
-    # Convert dicts → RigidTransforms
-    for piece_type, grasp_list in data.items():
-        if piece_type == "knight":
-            points = [grasp_list[0]["p_i"], grasp_list[0]["p_j"]]
-            break
-    return points
