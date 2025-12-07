@@ -2,9 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 sys.path.append("/workspaces/CheckMate-6.4210-final-project/src")
-from control.execute_trajectory import execute_trajectory, downsample_path, path_to_fullstate_trajectory
+from control.execute_pp_traj import execute_trajectory
 from simulation_setup.initialize_simulation import initialize_simulation
-from path_planning.rrt_connect import IiwaProblem, rrt_connect_planning, sample_random_q
+from path_planning.full_path_planning import compute_path
+from path_planning.rrt_connect import  sample_random_q
 
 def analyze_tracking(
     t_state, x_state,
@@ -92,30 +93,29 @@ def compute_ee_error(t_state, q_actual, q_des_interp, plant, context):
 
 if __name__ == "__main__":
     simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat2, diagram, traj_source, logger_state, logger_desired, logger_torque = initialize_simulation(traj=None)
-    iiwa = plant.GetModelInstanceByName("iiwa7")
-    q_start = plant.GetPositions(plant_context, iiwa)
+    
     q_goal = sample_random_q(plant)
-    problem = IiwaProblem(
-        q_start=q_start,
+    traj_pp = compute_path(
         q_goal=q_goal,
-        gripper_setpoint=0.02,
-        is_visualizing=False,
         plant=plant,
         scene_graph=scene_graph,
         diagram_context=diagram_context,
         plant_context=plant_context,
+        meshcat=meshcat,
+        draw_path=True,
+        downsample=False,
+        max_iterations=5000,
+        eps_connect=0.05,
+        num_iterations=200,
+        time_per_waypoint=0.1,
+        sample_dt=0.01
     )
     
-    path, iters = rrt_connect_planning(problem, max_iterations=5000, eps_connect=0.05)
-    path = downsample_path(path, stride=3) #higher stride is faster path
-    problem.draw_path(path, plant, diagram_context, plant_context,meshcat)
-    traj = path_to_fullstate_trajectory(path, dt=0.005) #lower dt is faster execution
-
     (
     t_state, x_state,
     t_des, x_des,
     t_tau, torques
-    ) = execute_trajectory(traj, simulator, traj_source, diagram_context, logger_state, logger_desired, logger_torque)
+    ) = execute_trajectory(traj_pp, simulator, traj_source, diagram_context, logger_state, logger_desired, logger_torque)
 
     rms, maxerr = analyze_tracking(
         t_state, x_state,
@@ -130,3 +130,5 @@ if __name__ == "__main__":
         plant,
         plant.CreateDefaultContext()
     )
+
+
