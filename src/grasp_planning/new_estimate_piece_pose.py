@@ -8,19 +8,20 @@ sys.path.append("/workspaces/CheckMate-6.4210-final-project/src")
 from simulation_setup.square_to_pose import square_to_pose
 import trimesh
 
-def load_simulation_mesh(path):
+def load_mesh_as_points(path, num_samples=5000):
     mesh = trimesh.load(path)
 
-    # Apply SDF's 90° rotation around X
+    # Same transform Drake applies to SDF/OBJ geometry
     R_sdf = trimesh.transformations.rotation_matrix(
-        angle=1.5708, direction=[1,0,0]
+        angle=np.pi/2, direction=[1, 0, 0]
     )
-    S_sdf = np.diag([4,4,4,1])  # scale 4x
-
+    S_sdf = np.diag([4, 4, 4, 1])
     T_sdf = S_sdf @ R_sdf
     mesh.apply_transform(T_sdf)
 
-    return mesh
+    pts, _ = trimesh.sample.sample_surface(mesh, num_samples)
+    return pts
+
 
 
 def estimate_piece_pose(pc, piece_type, square, T_world_board):
