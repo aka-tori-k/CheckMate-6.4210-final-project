@@ -369,8 +369,6 @@ def sample_random_q(plant):
     return np.array(q)
 
 if __name__ == "__main__":
-    #init sim
-
     simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat, diagram = initialize_simulation()
     q_start = sample_random_q(plant)
     q_goal  = sample_random_q(plant)
@@ -399,6 +397,5 @@ if __name__ == "__main__":
             pass
     else:
         print("No path found.")
-    # simulator.AdvanceTo(5.0)
     
     
