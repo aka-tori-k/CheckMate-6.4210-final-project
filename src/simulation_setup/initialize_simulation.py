@@ -167,59 +167,39 @@ def initialize_simulation(traj=None, realtime_rate=1.0, kp_scale=400.0, kd_scale
     # set initial piece poses and robot initial pose (your existing logic)
     plant = set_initial_piece_poses(plant, plant_context, instances)
 
-    # robot_initial_pose = np.array([
-    #     1.5,    # joint 1
-    #     -1,     # joint 2
-    #     0.0,    # joint 3
-    #     -1.5,   # joint 4
-    #     0.0,    # joint 5
-    #     1.8,    # joint 6
-    #     1.5     # joint 7
-    #     ])
+    robot_initial_pose = np.array([
+        1.5,    # joint 1
+        -1,     # joint 2
+        0.0,    # joint 3
+        -1.5,   # joint 4
+        0.0,    # joint 5
+        1.8,    # joint 6
+        1.5     # joint 7
+        ])
 
     # initial pose for path planning tests
     # robot_initial_pose = [0, 0, 0, -1.57, 0, 1.57, 0]
 
     # robot_initial_pose = np.array([1.14481155, -1.1725643, 0.74546698, -0.5089159, -2.85271485, 0.85927073, 0.44859717]) 
     # robot_initial_pose = [0, -0.5, 0, -1.0, 0, 1.0, 0]
-    robot_initial_pose = np.array([ 2.16290727,  0.87296098,  0.15944027, -1.6646637,  -1.3256489,   0.56903973, 0.97472482])
     plant.SetPositions(plant_context, iiwa_instance, robot_initial_pose)
 
     simulator.Initialize()
     simulator.set_target_realtime_rate(realtime_rate)
 
-    # Advance very slightly so camera outputs point cloud
-    simulator.AdvanceTo(0.01)
-
     diagram_context = simulator.get_context()
-
-    pc_context = pc_gen.GetMyContextFromRoot(diagram_context)
-
-    # Get point cloud from the generator
-    pc_msg = pc_gen.point_cloud_output_port().Eval(pc_context)
-    pc_np = pc_msg.xyzs().T  # (N,3)
-
-    # # Test call
-    # piece_type = "pawn"
-    # square = "b7"
-    # T_world_board = np.eye(4)
-
-    # T_world_piece = estimate_piece_pose(pc_np, piece_type, square, T_world_board)
-    # print("Estimated pose:\n", T_world_piece)
-    # xyz = T_world_piece[:3, 3]
-
 
     print(meshcat.web_url())
 
     # Return everything + the handle to the traj_source system so caller can set trajectories at runtime
     return (simulator, plant, plant_context, meshcat, scene_graph, 
             diagram_context, meshcat, diagram, traj_source, logger_state, 
-            logger_desired, logger_torque)
+            logger_desired, logger_torque, pc_gen, wsg)
 
 
 
 
 if __name__ == "__main__":
-    simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat, diagram, traj_source, logger_state, logger_desired, logger_torque = initialize_simulation()
+    simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat, diagram, traj_source, logger_state, logger_desired, logger_torque, pc_gen, wsg = initialize_simulation()
     while True:
         pass

@@ -24,7 +24,7 @@ def load_mesh_as_points(path, num_samples=5000):
 
 
 
-def estimate_piece_pose(pc, piece_type, square, T_world_board):
+def estimate_piece_pose(pc, piece_type, square, T_world_board=np.eye(4)):
     """
     Estimate the 6D pose of a chess piece from a point cloud.
 
@@ -108,7 +108,7 @@ def estimate_piece_pose(pc, piece_type, square, T_world_board):
     # pc_board: observed points in board frame
     X_WO_hat, icp_info = IterativeClosestPoint(mesh_pts.T, pc_board.T)
 
-    return X_WO_hat, cropped
+    return X_WO_hat
 
 
 SQUARE = 0.1      # your board square size (meters)
