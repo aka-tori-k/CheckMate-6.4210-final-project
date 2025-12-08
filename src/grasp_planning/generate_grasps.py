@@ -41,7 +41,8 @@ def main():
         if not os.path.exists(mesh_path):
             raise FileNotFoundError(f"Missing mesh file: {mesh_path}")
 
-        grasps = generate_mesh_grasps(mesh_path, n_candidates=8)
+        grasps = generate_mesh_grasps(mesh_path, n_candidates=25)
+        print(f"{len(grasps)} grasps generated for {piece_name}")
 
         grasp_db[piece_name] = [transform_to_dict(g) for g in grasps]
 

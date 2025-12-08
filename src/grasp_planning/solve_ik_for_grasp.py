@@ -36,7 +36,7 @@ def solve_ik_for_grasp(plant, plant_context, wsg, T_world_grasp, q_seed=None):
 
     ## LOOSE CONSTRAINTS ##
     # Position constraint with tolerance (1 cm box)
-    pos_tol = 0.01
+    pos_tol = 0.005
     p_WG = T_world_grasp.translation()
 
     ik.AddPositionConstraint(
@@ -48,7 +48,7 @@ def solve_ik_for_grasp(plant, plant_context, wsg, T_world_grasp, q_seed=None):
     )
 
     # Orientation constraint with tolerance (5 degrees)
-    theta_tol = np.deg2rad(5)
+    theta_tol = np.deg2rad(3)
 
     ik.AddOrientationConstraint(
         gripper_frame,
@@ -67,8 +67,10 @@ def solve_ik_for_grasp(plant, plant_context, wsg, T_world_grasp, q_seed=None):
 
     result = Solve(prog)
     if not result.is_success():
-        print("IK failed for this grasp")
+        # print("IK failed for this grasp")
         return None
 
     q_sol = result.GetSolution(q)
     return q_sol[:7]
+
+

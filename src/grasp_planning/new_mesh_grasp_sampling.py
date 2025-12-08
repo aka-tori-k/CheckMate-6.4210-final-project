@@ -1,6 +1,10 @@
 import numpy as np
 import trimesh
 from pydrake.all import RigidTransform, RotationMatrix
+import sys
+sys.path.append("/workspaces/CheckMate-6.4210-final-project/src")
+from path_planning.generate_iiwa_problem import generate_iiwa_problem
+from simulation_setup.initialize_simulation import initialize_simulation   
 
 # -------------------------
 # Mesh -> Piece frame helpers
@@ -14,7 +18,6 @@ def rotation_x_matrix(theta):
 
 # In your SDF: <pose>0 0 0 1.5708 0 0</pose> --> rotate +90 deg about X
 SDF_ROT_X90 = rotation_x_matrix(np.pi / 2.0)
-
 
 # ---------------------------------------------------------
 # Utility functions (fixed + improved)
@@ -135,76 +138,102 @@ def gripper_pose_from_pair(p_i, p_j, n_i, n_j):
 def score_grasp(p_i, p_j, n_i, n_j,
                 prefer_top_down_weight=1.5,
                 normal_align_weight=2.0,
-                dist_weight=0.05):
+                dist_weight=0.05,
+                y_axis_down_weight=20.0):   # ← SUPER HEAVY FAVOR
     """
-    Score higher = better.
-    Includes:
-      - normal alignment (antipodality)
-      - distance between contacts (prefer wider within gripper limits)
-      - penalize vertical mismatch between the two contact points
-      - reward approach roughly top-down (z aligned with [0,0,-1])
-      - penalize axis degeneracy
+    Score: higher = better.
+
+    Added:
+      - SUPER-HEAVY preference for the gripper *y-axis* pointing down
+        (world -Z direction).
     """
-    # closing direction
+
+    # -------------------------
+    # Reconstruct gripper frame
+    # -------------------------
+    # Closing direction
     x = (p_j - p_i)
     x /= (np.linalg.norm(x) + 1e-9)
 
-    # approach vector
+    # Approach direction
     z_raw = -(n_i + n_j)
     if np.linalg.norm(z_raw) < 1e-3:
         z_raw = -n_i
     z = z_raw / (np.linalg.norm(z_raw) + 1e-9)
 
-    normal_alignment = -np.dot(n_i, n_j)  # close to +1 is good
+    # y-axis = z × x   (same rule as gripper_pose_from_pair)
+    y = np.cross(z, x)
+    ny = np.linalg.norm(y)
+    if ny < 1e-9:
+        return -1e9   # discard degenerate grasps
+    y /= ny
+
+    # World preferred direction
+    world_down = np.array([0.0, 0.0, -1.0])
+
+    # Alignment score: +1 → perfect downward, −1 → upward
+    y_axis_alignment = np.dot(y, world_down)
+
+    # -------------------------
+    # Original geometric terms
+    # -------------------------
+    normal_alignment = -np.dot(n_i, n_j)
     dist = np.linalg.norm(p_i - p_j)
     dz = abs(p_i[2] - p_j[2])
-    dist_from_center = abs((p_i[2] + p_j[2]) * 0.5 - 0.06)  # center height bias
+    dist_from_center = abs((p_i[2] + p_j[2]) * 0.5 - 0.06)
+    axis_parallel = abs(np.dot(x, z))
 
-    axis_parallel = abs(np.dot(x, z))  # 0 good, 1 bad
+    # Approach alignment (old term)
+    approach_alignment = np.dot(z, world_down)
 
-    # reward approach that points downward (piece-frame negative z)
-    preferred_approach = np.array([0.0, 0.0, -1.0])
-    approach_alignment = np.dot(z, preferred_approach)  # 1 if perfectly top-down
-
+    # -------------------------
+    # Final combined score
+    # -------------------------
     score = (
         normal_align_weight * normal_alignment +
         dist_weight * dist -
         0.3 * dz -
         0.01 * dist_from_center -
         0.5 * axis_parallel +
-        prefer_top_down_weight * approach_alignment
+        prefer_top_down_weight * approach_alignment +
+        y_axis_down_weight * y_axis_alignment   # ★ SUPER HEAVY TERM ★
     )
+
     return float(score)
+
 
 
 # ---------------------------------------------------------
 # Top-level API (fixed)
 # ---------------------------------------------------------
-def generate_mesh_grasps(mesh_path,
-                         n_candidates=8,
+def generate_mesh_grasps(mesh_path, 
+                         n_candidates=150,
                          n_samples=2000,
                          apply_sdf_rotation=True,
                          mesh_scale=4.0,
                          dist_thresh=0.03,
-                         angle_thresh=np.deg2rad(20)):
-    """
-    Returns a list of up to n_candidates RigidTransforms in the *piece* frame
-    (i.e., the frame after applying the SDF <pose> rotation/scale).
-    """
-    # Load raw OBJ with trimesh
+                         angle_thresh=np.deg2rad(20),
+                         offset_distance=0.07):      # << added arg
+
     mesh = trimesh.load(mesh_path)
+    points, normals = sample_surface_points(
+        mesh, n_samples,
+        apply_sdf_rotation=apply_sdf_rotation,
+        mesh_scale=mesh_scale
+    )
 
-    # Sample and transform into piece frame
-    points, normals = sample_surface_points(mesh, n_samples,
-                                           apply_sdf_rotation=apply_sdf_rotation,
-                                           mesh_scale=mesh_scale)
-
-    pairs = antipodal_pairs(points, normals, angle_thresh=angle_thresh, dist_thresh=dist_thresh)
+    pairs = antipodal_pairs(points, normals,
+                            angle_thresh=angle_thresh,
+                            dist_thresh=dist_thresh)
+    print(f"Found {len(pairs)} antipodal point pairs.")
     if len(pairs) == 0:
-        raise RuntimeError("No antipodal grasp candidates found. Increase samples or thresholds.")
+        raise RuntimeError("No antipodal grasp candidates found.")
 
     scored = []
+    backoff = RigidTransform([0, -offset_distance, 0])   # << backoff transform
+
     for (i, j) in pairs:
+        # print(f"Evaluating pair ({i}, {j})")
         p_i, p_j = points[i], points[j]
         n_i, n_j = normals[i], normals[j]
 
@@ -212,11 +241,13 @@ def generate_mesh_grasps(mesh_path,
         if pose is None:
             continue
 
+        pose = pose @ backoff
+
         score = score_grasp(p_i, p_j, n_i, n_j)
         scored.append((score, pose))
 
     if len(scored) == 0:
-        raise RuntimeError("No valid (non-degenerate) grasps after pose construction.")
+        raise RuntimeError("No valid grasp poses after backoff.")
 
     scored.sort(key=lambda x: x[0], reverse=True)
     top = [pose for (score, pose) in scored[:n_candidates]]
@@ -226,8 +257,22 @@ def generate_mesh_grasps(mesh_path,
 # -------------------------
 # Example usage
 # -------------------------
-# if __name__ == "__main__":
-#     mesh_path = "/workspaces/CheckMate-6.4210-final-project/src/models/pieces/pawns/pawn_mesh.obj"
+if __name__ == "__main__":
+    mesh_path = "/workspaces/CheckMate-6.4210-final-project/src/models/pieces/pawns/pawn_mesh.obj"
+    # grasps = generate_mesh_grasps(mesh_path,n_candidates=8)
+    # simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat, diagram, traj_source, logger_state, logger_desired, logger_torque, pc_gen, wsg = initialize_simulation()
+    # grasps = generate_mesh_grasps(mesh_path, plant, scene_graph, diagram_context, plant_context,
+    #                               n_candidates=16, n_samples=3000,
+    #                               apply_sdf_rotation=True, mesh_scale=4.0)
+    # print(f"Found {len(grasps)} grasp poses (RigidTransform) in piece frame.")
+
+    #set iiwa to first grasp pose
+    # iiwa = plant.GetModelInstanceByName("iiwa7")
+    # q_start = plant.GetPositions(plant_context, iiwa)
+    # grasp_in_world = T_world_piece @ grasps[0]
+
+
+    # Example: print first transform
 #     grasps = generate_mesh_grasps(mesh_path, n_candidates=8, n_samples=3000,
 #                                   apply_sdf_rotation=True, mesh_scale=4.0)
 #     print(f"Found {len(grasps)} grasp poses (RigidTransform) in piece frame.")
@@ -236,3 +281,4 @@ def generate_mesh_grasps(mesh_path,
 #         R = g.rotation().matrix()
 #         t = g.translation()
 #         print(f"Grasp {i}: R=\n{R}\n t={t}")
+

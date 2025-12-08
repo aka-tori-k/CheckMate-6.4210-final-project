@@ -1,6 +1,7 @@
 import numpy as np
 from pydrake.all import RigidTransform
 from pydrake.math import RotationMatrix
+
 from manipulation.icp import IterativeClosestPoint
 import sys
 sys.path.append("/workspaces/CheckMate-6.4210-final-project/src")
@@ -87,7 +88,6 @@ def estimate_piece_pose(pc, piece_type, square, T_world_board):
     return X_WO_hat, cropped
 
 
-
-
 SQUARE = 0.1      # your board square size (meters)
 BOARD_HALF = 4 * SQUARE   # 8 squares / 2 = 4
+

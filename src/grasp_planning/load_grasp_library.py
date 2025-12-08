@@ -7,7 +7,7 @@ sys.path.append("/workspaces/CheckMate-6.4210-final-project/src")
 def load_grasp_library():
     current_dir = os.path.dirname(__file__)
     path = os.path.join(current_dir, "grasp_library.json")
-
+    
     with open(path, "r") as f:
         data = json.load(f)
 
