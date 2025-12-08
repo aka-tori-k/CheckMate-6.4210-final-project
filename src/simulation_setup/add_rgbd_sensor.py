@@ -43,16 +43,16 @@ def add_rgbd_sensor(builder, plant, parser, scene_graph, iiwa):
     )
 
 
-    camera_model = parser.AddModels("src/models/rgbd_sensor.sdf")[0]
+    # camera_model = parser.AddModels("src/models/rgbd_sensor.sdf")[0]
 
-    wrist_frame = plant.GetFrameByName("iiwa_link_7", iiwa)
-    camera_frame = plant.GetFrameByName("base", camera_model)   
+    # wrist_frame = plant.GetFrameByName("iiwa_link_7", iiwa)
+    # camera_frame = plant.GetFrameByName("base", camera_model)   
 
     # adjust p if move physical camera
     #will need to move this bc curretly causing collision error
-    plant.WeldFrames(wrist_frame, camera_frame, 
-                     RigidTransform(R=RotationMatrix.Identity(),p=np.array([0, 0, 0.11]).reshape((3, 1)))
-                     )
+    # plant.WeldFrames(wrist_frame, camera_frame, 
+    #                  RigidTransform(R=RotationMatrix.Identity(),p=np.array([0, 0, 0.11]).reshape((3, 1)))
+    #                  )
     
     return plant, rgbd
 
