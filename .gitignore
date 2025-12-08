@@ -1,4 +1,4 @@
 # Ignore hidden folders/files and cache
 .*/
-__pycache__/
+__pycache__/*
 .DS_Store
