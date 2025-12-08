@@ -1,7 +1,7 @@
 import json
 import os
 from pydrake.all import RigidTransform
-from new_mesh_grasp_sampling import generate_mesh_grasps
+from mesh_grasp_sampling import generate_mesh_grasps
 
 HERE = os.path.dirname(__file__)  # .../grasp_planning
 REPO_ROOT = os.path.dirname(os.path.dirname(HERE))  # .../src

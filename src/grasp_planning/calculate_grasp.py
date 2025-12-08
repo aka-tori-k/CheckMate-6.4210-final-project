@@ -4,7 +4,7 @@ from pyparsing import col
 sys.path.append("/workspaces/CheckMate-6.4210-final-project/src")
 from pydrake.all import (Sphere, Rgba, RigidTransform)
 from simulation_setup.initialize_simulation import initialize_simulation
-from grasp_planning.new_estimate_piece_pose import estimate_piece_pose
+from grasp_planning.estimate_piece_pose import estimate_piece_pose
 from grasp_planning.solve_ik_for_grasp import solve_ik_for_grasp
 from grasp_planning.load_grasp_library import load_grasp_library
 from pydrake.all import Meshcat

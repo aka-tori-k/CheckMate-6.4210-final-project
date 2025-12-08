@@ -10,10 +10,21 @@ import trimesh
 
 def load_mesh_as_points(path, num_samples=5000):
     mesh = trimesh.load(path)
+
+    # Same transform Drake applies to SDF/OBJ geometry
+    R_sdf = trimesh.transformations.rotation_matrix(
+        angle=np.pi/2, direction=[1, 0, 0]
+    )
+    S_sdf = np.diag([4, 4, 4, 1])
+    T_sdf = S_sdf @ R_sdf
+    mesh.apply_transform(T_sdf)
+
     pts, _ = trimesh.sample.sample_surface(mesh, num_samples)
     return pts
 
-def estimate_piece_pose(pc, piece_type, square, T_world_board):
+
+
+def estimate_piece_pose(pc, piece_type, square, T_world_board=np.eye(4)):
     """
     Estimate the 6D pose of a chess piece from a point cloud.
 
@@ -26,12 +37,16 @@ def estimate_piece_pose(pc, piece_type, square, T_world_board):
     Returns:
         T_world_piece: 4x4 homogeneous transform of the piece
     """
-
+    
+     # ---- 1. Normalize square input ------------------------------------------
     file_letter, rank_number = square
 
     T_world_board = RigidTransform(T_world_board)
 
-    # Get the world coordinates of square center
+    # ---- 2. Get the world coordinates of square center ----------------------
+    # You already have a helper for this:
+    #     square_to_pose(row, col) → RigidTransform in board frame
+
     T_board_square = square_to_pose(file_letter, rank_number)
     square_center_world = (T_world_board @ T_board_square).translation()
 
@@ -43,7 +58,7 @@ def estimate_piece_pose(pc, piece_type, square, T_world_board):
     ymin = square_center_world[1] - half
     ymax = square_center_world[1] + half
 
-    # Crop world-frame point cloud to the square
+    # ---- 3. Crop world-frame point cloud to the square ----------------------
     X = pc[:, 0]
     Y = pc[:, 1]
 
@@ -56,14 +71,16 @@ def estimate_piece_pose(pc, piece_type, square, T_world_board):
     if cropped.shape[0] < 30:
         raise RuntimeError("Not enough points on that square to fit ICP.")
 
-    # Transform cropped cloud into BOARD frame 
+    # ---- 4. Transform cropped cloud into BOARD frame ------------------------
     T_board_world = T_world_board.inverse()   # world → board
     pc_board = np.array([
-        T_board_world @ np.hstack([point, 1.0])
-        for point in cropped
+        T_board_world @ np.hstack([p, 1.0])
+        for p in cropped
     ])[:, :3]
 
-    # Load the mesh corresponding to the piece type
+    # ---- 5. Load the mesh corresponding to the piece type -------------------
+    # Your paths:
+    #   models/pieces/bishops/bishop_mesh.obj
     obj_path = {
         "pawn":   "src/models/pieces/pawns/pawn_mesh.obj",
         "rook":   "src/models/pieces/rooks/rook_mesh.obj",
@@ -73,19 +90,21 @@ def estimate_piece_pose(pc, piece_type, square, T_world_board):
         "king":   "src/models/pieces/kings/king_mesh.obj",
     }[piece_type]
 
-    # load mesh
+    # Drake’s ICP takes a point cloud as numpy array
+    # so you need to sample mesh points from the OBJ.
+
     mesh_pts = load_mesh_as_points(obj_path)
     mesh = trimesh.load(obj_path)
     print(mesh.bounds)
     print(mesh.scale)
     print(mesh.extents)
 
-    # Run ICP in BOARD frame
+    # ---- 6. Run ICP in BOARD frame ------------------------------------------
     # mesh_pts: model points in board frame
     # pc_board: observed points in board frame
     X_WO_hat, icp_info = IterativeClosestPoint(mesh_pts.T, pc_board.T)
 
-    return X_WO_hat, cropped
+    return X_WO_hat
 
 
 SQUARE = 0.1      # your board square size (meters)
