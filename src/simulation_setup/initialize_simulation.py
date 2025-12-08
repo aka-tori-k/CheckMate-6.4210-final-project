@@ -15,8 +15,7 @@ from pydrake.all import (
     InverseDynamicsController,
     MultibodyPlant,
     ConstantVectorSource,
-    LogVectorOutput,
-    PiecewisePolynomial
+    LogVectorOutput
 )
 import numpy as np
 import sys
@@ -184,16 +183,9 @@ def initialize_simulation(traj=None, realtime_rate=1.0, kp_scale=400.0, kd_scale
     # robot_initial_pose = np.array([1.14481155, -1.1725643, 0.74546698, -0.5089159, -2.85271485, 0.85927073, 0.44859717]) 
     # robot_initial_pose = [0, -0.5, 0, -1.0, 0, 1.0, 0]
 
-
     # USE THIS ROBOT INITIAL POSE IT IS COLLISIOIN FREE AND GOOD VIEW OF BOARD
     robot_initial_pose = np.array([ 1.5,  -1.,    0.,   -1.5,   0.,    1.76,  1.5 ])
-    x0 = np.hstack([robot_initial_pose, np.zeros(7)])
-    traj = PiecewisePolynomial.FirstOrderHold([0, 10], np.c_[x0, x0])
-    traj_source.set_trajectory(traj)
-
-    # Initialize traj source state to match robot initial pose
-    # v0 = np.zeros_like(robot_initial_pose)
-    # traj_source.set_trajectory(np.hstack([robot_initial_pose, v0]))
+    plant.SetPositions(plant_context, iiwa_instance, robot_initial_pose)
 
     simulator.Initialize()
     simulator.set_target_realtime_rate(realtime_rate)
