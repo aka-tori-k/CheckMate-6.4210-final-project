@@ -1,7 +1,7 @@
 import sys
 sys.path.append("/workspaces/CheckMate-6.4210-final-project/src")
-from simulation_setup.bad_initialize_simulation import initialize_simulation
-from path_planning.bad_rrt_connect import  sample_random_q
+from simulation_setup.initialize_simulation import initialize_simulation
+from path_planning.rrt_connect import  sample_random_q
 from path_planning.full_path_planning import compute_path
 import time
 

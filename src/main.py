@@ -24,7 +24,7 @@ def reset_robot_and_sync(plant, plant_context, diagram_context, diagram, q_targe
     diagram.ForcedPublish(diagram_context)
 
 
-def draw_square_box(meshcat, square, color, box_name, height=0.005, box_size=0.095):
+def draw_square_box(meshcat, square, color, box_name, height=0.0, box_size=0.095):
     """
     Draw a colored box around a chess square.
     
@@ -33,7 +33,7 @@ def draw_square_box(meshcat, square, color, box_name, height=0.005, box_size=0.0
         square: Chess square notation (e.g., "e2")
         color: Rgba color tuple
         box_name: Unique name for the box in meshcat
-        height: Height of the box above the board (default 5mm)
+        height: Height of the box above the board (default 0mm)
         box_size: Size of the box (default 95mm, slightly smaller than 100mm square)
     """
     # Parse square notation (e.g., "e2" -> file='e', rank='2')
@@ -45,7 +45,7 @@ def draw_square_box(meshcat, square, color, box_name, height=0.005, box_size=0.0
     square_center = square_pose.translation()
     
     # Create a box slightly smaller than the square
-    box = Box(box_size, box_size, 0.001)  # Thin box (2mm thick)
+    box = Box(box_size, box_size, 0.0005)  # Thin box
     
     # Set the box object and transform in meshcat
     meshcat.SetObject(box_name, box, rgba=color)
@@ -178,7 +178,7 @@ def main():
     # 1) initialize simulation
     (simulator, plant, plant_context, meshcat, scene_graph, 
     diagram_context, meshcat, diagram, traj_source,
-    logger_state, logger_desired, logger_torque, pc_gen, wsg) = initialize_simulation()
+    logger_state, logger_desired, logger_torque, pc_gen, wsg, wsg_traj_source) = initialize_simulation()
    
    # 2) initialize chess interface and get best move
     chess_interface = ChessInterface()
