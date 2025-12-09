@@ -40,15 +40,22 @@ def main():
    
    # 2) initialize chess interface and get best move
     chess_interface = ChessInterface()
-    move, from_square, to_square, moving_type, is_capture, captured_type = chess_interface.get_best_move().values()
-    print(f"Best move: {move}, from {from_square} to {to_square}, moving {moving_type}, capture: {is_capture}, captured type: {captured_type}")
+    move_info = chess_interface.get_best_move()
+    move = move_info['move']
+    from_square = move_info['from_square']
+    to_square = move_info['to_square']
+    moving_type = move_info['moving_type']
+    piece_name = move_info['piece_name']
+    is_capture = move_info['is_capture']
+    captured_type = move_info['captured_type']
+    print(f"Best move: {move}, from {from_square} to {to_square}, moving {moving_type} ({piece_name}), capture: {is_capture}, captured type: {captured_type}")
     
     # Visualize the move: green box on source square, red box on target square
     draw_square_box(meshcat, from_square, Rgba(0, 1, 0, 0.7), "source_square_box")
     draw_square_box(meshcat, to_square, Rgba(1, 0, 0, 0.7), "target_square_box")
     print(f"Visualized: Green box on {from_square}, Red box on {to_square}")
 
-    simulator.AdvanceTo(15.0)
+    # simulator.AdvanceTo(5.0)
 
     # 3) compute_grasp_pose()
     
