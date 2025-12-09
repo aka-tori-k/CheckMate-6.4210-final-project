@@ -2,7 +2,7 @@ import sys
 sys.path.append("/workspaces/CheckMate-6.4210-final-project/src")
 from path_planning.rrt_connect import IiwaProblem
 
-def generate_iiwa_problem(q_start, q_goal, plant, scene_graph, diagram_context, plant_context):
+def generate_iiwa_problem(q_start, q_goal, plant, scene_graph, diagram, diagram_context, plant_context):
     problem = IiwaProblem(
         q_start=q_start,
         q_goal=q_goal,
@@ -10,6 +10,7 @@ def generate_iiwa_problem(q_start, q_goal, plant, scene_graph, diagram_context, 
         is_visualizing=False,
         plant=plant,
         scene_graph=scene_graph,
+        diagram=diagram,
         diagram_context=diagram_context,
         plant_context=plant_context,
     )

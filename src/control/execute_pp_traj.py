@@ -1,7 +1,7 @@
 import sys
 sys.path.append("/workspaces/CheckMate-6.4210-final-project/src")
-from simulation_setup.initialize_simulation import initialize_simulation
-from path_planning.rrt_connect import  sample_random_q
+from simulation_setup.bad_initialize_simulation import initialize_simulation
+from path_planning.bad_rrt_connect import  sample_random_q
 from path_planning.full_path_planning import compute_path
 import time
 
@@ -9,16 +9,17 @@ def execute_trajectory(traj, simulator, traj_source, diagram_context, logger_sta
     # Upload the trajectory into the running modifiable TrajectorySource
     print("Uploading trajectory to controller...")
     traj_source.set_trajectory(traj)
-
+    print(traj.start_time(), traj.end_time())
     # Simulate forward to the end of the trajectory (relative to current sim time)
     ctx = simulator.get_context()
     t_now = ctx.get_time()
-    t_end = t_now + traj.end_time()
+    t_end = traj.end_time() + 0.01  # small buffer after end
     print(f"Advancing simulation from t={t_now:.3f} to t={t_end:.3f} ...")
     simulator.AdvanceTo(t_end)
+    # print(simulator.get_context().get_time())
 
     # small pause (optional) before next plan
-    time.sleep(0.2)
+    # time.sleep(0.2)
 
     ###############################################################################
     # Everythign below is just for logging data out of the simulation for testing #
@@ -45,12 +46,13 @@ def execute_trajectory(traj, simulator, traj_source, diagram_context, logger_sta
 
 
 if __name__ == "__main__":
-    simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat2, diagram, traj_source, logger_state, logger_desired, logger_torque = initialize_simulation(traj=None)
+    simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat, diagram, traj_source, logger_state, logger_desired, logger_torque, pc_gen, wsg = initialize_simulation(traj=None)
     q_goal = sample_random_q(plant)
-    traj_pp = compute_path(
+    traj_pp, q_spline = compute_path(
         q_goal=q_goal,
         plant=plant,
         scene_graph=scene_graph,
+        diagram=diagram,
         diagram_context=diagram_context,
         plant_context=plant_context,
         meshcat=meshcat,
@@ -63,6 +65,7 @@ if __name__ == "__main__":
         sample_dt=0.01
     )
 
+    
     times_state, x_state, times_des, x_des, times_tau, torques = execute_trajectory(traj_pp, simulator, traj_source, 
                                                                                     diagram_context, logger_state, 
                                                                                     logger_desired, logger_torque

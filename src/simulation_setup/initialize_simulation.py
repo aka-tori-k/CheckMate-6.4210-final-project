@@ -15,10 +15,12 @@ from pydrake.all import (
     InverseDynamicsController,
     MultibodyPlant,
     ConstantVectorSource,
-    LogVectorOutput
+    LogVectorOutput,
+    PiecewisePolynomial
 )
 import numpy as np
 import sys
+
 sys.path.append("/workspaces/CheckMate-6.4210-final-project/src")
 
 from simulation_setup.add_pieces_to_plant import add_pieces_to_plant
@@ -41,7 +43,7 @@ def initialize_simulation(traj=None, realtime_rate=1.0, kp_scale=400.0, kd_scale
 
     meshcat = StartMeshcat()
     builder = DiagramBuilder()
-    plant, scene_graph = AddMultibodyPlantSceneGraph(builder, time_step=0.0)
+    plant, scene_graph = AddMultibodyPlantSceneGraph(builder, time_step=0.005)
     parser = Parser(plant)
 
     scene_graph.AddRenderer("vtk", MakeRenderEngineVtk(RenderEngineVtkParams()))
@@ -89,10 +91,7 @@ def initialize_simulation(traj=None, realtime_rate=1.0, kp_scale=400.0, kd_scale
     )
     controller_plant.Finalize()
 
-    # nq = controller_plant.num_positions()
-    # # full_state_len = controller_plant.num_multibody_positions() + controller_plant.num_multibody_velocities()
-    # full_state_len = controller_plant.num_positions() + controller_plant.num_velocities()
-    # assert full_state_len == 2 * nq, "controller plant expected full-state length == 2*nq"
+    
     nq = controller_plant.num_positions()
     nv = controller_plant.num_velocities()
     full_state_len = nq + nv
@@ -101,12 +100,6 @@ def initialize_simulation(traj=None, realtime_rate=1.0, kp_scale=400.0, kd_scale
 
     # ---------- Create a modifiable trajectory source and connect the controller ----------
     traj_source = ModifiableTrajectorySource(vector_size=full_state_len)
-    if traj is not None:
-        # quick consistency check
-        if traj.value(traj.start_time()).size != full_state_len:
-            raise RuntimeError("Provided traj has wrong output dimension for controller.")
-        traj_source.set_trajectory(traj)
-
     traj_src_system = builder.AddSystem(traj_source)  # Add to builder and keep handle
 
     # Build IDC on controller_plant
@@ -127,36 +120,19 @@ def initialize_simulation(traj=None, realtime_rate=1.0, kp_scale=400.0, kd_scale
     # Wire controller torque -> world plant actuation input
     builder.Connect(id_controller.get_output_port_control(), plant.get_actuation_input_port(iiwa_instance))
 
-    ############################################
-    # LOG ACTUAL STATE (q, v)
-    ############################################
-    logger_state = LogVectorOutput(
-        plant.get_state_output_port(iiwa_instance), builder
-    )
-
-    ############################################
-    # LOG DESIRED STATE ([q; qdot] from traj_source)
-    ############################################
-    logger_desired = LogVectorOutput(
-        traj_src_system.get_output_port(0), builder
-    )
-
-    ############################################
-    # LOG CONTROLLER TORQUES
-    ############################################
-    logger_torque = LogVectorOutput(
-        id_controller.get_output_port_control(), builder
-    )
+    logger_state = LogVectorOutput(plant.get_state_output_port(iiwa_instance), builder)
+    logger_desired = LogVectorOutput(traj_src_system.get_output_port(0), builder)
+    logger_torque = LogVectorOutput(id_controller.get_output_port_control(), builder)
 
 
     # Optionally zero external generalized forces for safety
-    try:
-        zero_tau = ConstantVectorSource(np.zeros(nq))
-        zsys = builder.AddSystem(zero_tau)
-        builder.Connect(zsys.get_output_port(), plant.get_generalized_external_forces_input_port(iiwa_instance))
-    except Exception:
-        # Not fatal if the world plant doesn't expose that port
-        pass
+    # try:
+    #     zero_tau = ConstantVectorSource(np.zeros(nq))
+    #     zsys = builder.AddSystem(zero_tau)
+    #     builder.Connect(zsys.get_output_port(), plant.get_generalized_external_forces_input_port(iiwa_instance))
+    # except Exception:
+    #     # Not fatal if the world plant doesn't expose that port
+    #     pass
 
     # Build diagram + simulator
     diagram = builder.Build()
@@ -187,8 +163,14 @@ def initialize_simulation(traj=None, realtime_rate=1.0, kp_scale=400.0, kd_scale
     robot_initial_pose = np.array([ 1.5,  -1.,    0.,   -1.5,   0.,    1.76,  1.5 ])
     plant.SetPositions(plant_context, iiwa_instance, robot_initial_pose)
 
+    q0 = plant.GetPositions(plant_context, iiwa_instance)
+    v0 = np.zeros_like(q0)
+    full0 = np.concatenate([q0, v0])  # [q; v]
+    traj_pp = PiecewisePolynomial.FirstOrderHold([0.0, 10.0], np.column_stack([full0, full0]))
+    traj_source.set_trajectory(traj_pp)
+
     simulator.Initialize()
-    simulator.set_target_realtime_rate(realtime_rate)
+    simulator.set_target_realtime_rate(0)
 
     diagram_context = simulator.get_context()
 
@@ -200,9 +182,10 @@ def initialize_simulation(traj=None, realtime_rate=1.0, kp_scale=400.0, kd_scale
             logger_desired, logger_torque, pc_gen, wsg)
 
 
-
-
 if __name__ == "__main__":
+    # simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat, diagram, traj_source, logger_state, logger_desired, logger_torque, pc_gen, wsg = initialize_simulation()
     simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat, diagram, traj_source, logger_state, logger_desired, logger_torque, pc_gen, wsg = initialize_simulation()
-    while True:
-        pass
+    simulator.AdvanceTo(10)
+
+    # while True:
+    #     pass

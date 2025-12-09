@@ -20,6 +20,7 @@ from pydrake.all import (
     Solve,
     StartMeshcat,
     TrajectorySource,
+    ModelInstanceIndex
 )
 from pydrake.multibody import inverse_kinematics
 from pydrake.trajectories import PiecewisePolynomial
@@ -35,7 +36,6 @@ from manipulation.exercises.trajectories.rrt_planner.rrt_planning import (
 )
 from manipulation.meshcat_utils import AddMeshcatTriad
 
-
 class IiwaProblem(Problem):
     def __init__(
         self,
@@ -45,6 +45,7 @@ class IiwaProblem(Problem):
         is_visualizing=False,
         plant: MultibodyPlant = None,
         scene_graph: any = None,
+        diagram: any = None,
         diagram_context: any = None,
         plant_context: any = None,
     ) -> None:
@@ -52,10 +53,17 @@ class IiwaProblem(Problem):
         self.is_visualizing = is_visualizing
         self.plant = plant
         self.scene_graph = scene_graph
+        self.diagram = diagram
         self.diagram_context = diagram_context
         self.plant_context = plant_context
         self.sg_context = scene_graph.GetMyMutableContextFromRoot(diagram_context)
         self.query_port = scene_graph.get_query_output_port()
+        # Will be filled the first time collide() is called
+        self._cached_geom_to_body = None
+        self._cached_piece_body_indices = None
+        self._cached_board_body_indices = None
+        self._cached_iiwa_body_indices = None
+
 
         # --- Check start configuration ---
         self.start_in_collision = self.collide(q_start)
@@ -99,18 +107,160 @@ class IiwaProblem(Problem):
             cspace=cspace_iiwa,
         )
 
-    def collide(self, q: np.ndarray) -> bool:
+
+    def collide(self, q: np.ndarray, held_piece: str | None = None) -> bool:
         plant = self.plant
         plant_context = self.plant_context
         iiwa = plant.GetModelInstanceByName("iiwa7")
 
-        # Set positions
+        # Set robot state
         plant.SetPositions(plant_context, iiwa, q)
 
-        # Reuse cached context + query port
+        # Query scene graph
         query_object = self.query_port.Eval(self.sg_context)
+        inspector = query_object.inspector()
 
-        return query_object.HasCollisions()
+        # ------------------------------------------------------
+        # CACHE BODY INDEX GROUPS (computed only once)
+        # ------------------------------------------------------
+        if self._cached_iiwa_body_indices is None:
+            self._cached_iiwa_body_indices = set(plant.GetBodyIndices(iiwa))
+
+        # ---- FIXED API: iterate using range(plant.num_model_instances()) ----
+        if self._cached_piece_body_indices is None:
+            piece_indices = set()
+            for i in range(plant.num_model_instances()):
+                mi = ModelInstanceIndex(i)
+                name = plant.GetModelInstanceName(mi).lower()
+                if any(k in name for k in ["pawn", "rook", "knight", "bishop", "queen", "king"]):
+                    piece_indices |= set(plant.GetBodyIndices(mi))
+            self._cached_piece_body_indices = piece_indices
+
+        if self._cached_board_body_indices is None:
+            board_indices = set()
+            for i in range(plant.num_model_instances()):
+                mi = ModelInstanceIndex(i)
+                name = plant.GetModelInstanceName(mi).lower()
+                if "board" in name or "chessboard" in name:
+                    board_indices |= set(plant.GetBodyIndices(mi))
+            self._cached_board_body_indices = board_indices
+
+        # ------------------------------------------------------
+        # CACHE GEOMETRY → BODY MAPPING
+        # ------------------------------------------------------
+        if self._cached_geom_to_body is None:
+            geom_to_body = {}
+            for frame_id in inspector.GetAllFrameIds():
+                try:
+                    body = plant.GetBodyFromFrameId(frame_id)
+                except:
+                    continue
+
+                try:
+                    geom_ids = inspector.GetGeometries(frame_id)
+                except:
+                    geom_ids = inspector.GetGeometryIds(frame_id)
+
+                for gid in geom_ids:
+                    geom_to_body[gid] = body.index()
+
+            self._cached_geom_to_body = geom_to_body
+
+        geom_to_body = self._cached_geom_to_body
+        iiwa_body_indices = self._cached_iiwa_body_indices
+        piece_body_indices = self._cached_piece_body_indices
+        board_body_indices = self._cached_board_body_indices
+
+        # ------------------------------------------------------
+        # Held piece
+        # ------------------------------------------------------
+        held_piece_indices = set()
+        if held_piece is not None:
+            try:
+                mi = plant.GetModelInstanceByName(held_piece)
+                held_piece_indices = set(plant.GetBodyIndices(mi))
+            except:
+                pass
+
+        # ------------------------------------------------------
+        # Evaluate collisions
+        # ------------------------------------------------------
+        for p in query_object.ComputePointPairPenetration():
+            A = geom_to_body.get(p.id_A)
+            B = geom_to_body.get(p.id_B)
+            if A is None or B is None:
+                continue
+
+            # Ignore piece ↔ board
+            if (A in piece_body_indices and B in board_body_indices) or \
+            (B in piece_body_indices and A in board_body_indices):
+                continue
+
+            # Ignore piece ↔ piece
+            if (A in piece_body_indices and B in piece_body_indices):
+                continue
+
+            # Ignore robot self-collision
+            if (A in iiwa_body_indices and B in iiwa_body_indices):
+                continue
+
+            # Ignore held-piece special cases
+            if held_piece_indices:
+                # held ↔ iiwa
+                if A in held_piece_indices and B in iiwa_body_indices:
+                    continue
+                if B in held_piece_indices and A in iiwa_body_indices:
+                    continue
+
+                # held ↔ board
+                if A in held_piece_indices and B in board_body_indices:
+                    continue
+                if B in held_piece_indices and A in board_body_indices:
+                    continue
+
+                # held ↔ pieces
+                if A in held_piece_indices and B in piece_body_indices:
+                    continue
+                if B in held_piece_indices and A in piece_body_indices:
+                    continue
+
+            # If we reach here, check robot involvement
+            if (A in iiwa_body_indices) or (B in iiwa_body_indices):
+                return True
+
+        return False
+
+    def safe_path(self, q_start, q_end, max_step=np.deg2rad(2)):
+        """
+        Efficiently compute a collision-free path between q_start and q_end.
+        Returns a list of waypoints [q_start, ..., q_last_valid]
+        where q_last_valid is the last non-colliding interpolation point.
+        If the first step collides, returns [].
+        """
+
+        q_start = np.asarray(q_start, dtype=float)
+        q_end   = np.asarray(q_end,   dtype=float)
+
+        # Compute distance in joint space
+        diff = q_end - q_start
+        dist = np.linalg.norm(diff)
+
+        # Number of steps based on step size limit
+        steps = max(1, int(dist / max_step))
+
+        # Vectorized interpolation
+        alphas = np.linspace(0, 1, steps + 1)
+
+        path = []
+        for a in alphas:
+            q = q_start + a * diff
+
+            if self.collide(q):     # uses the optimized, cached collide()
+                return path         # return only safe portion
+
+            path.append(tuple(q))   # tuple → matches RRT API
+
+        return path   # fully safe path
 
 
 
@@ -371,10 +521,10 @@ def sample_random_q(plant):
 if __name__ == "__main__":
     #init sim
 
-    simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat, diagram, traj_source, logger_state, logger_desired, logger_torque = initialize_simulation()
-    q_start = sample_random_q(plant)
-    # q_goal  = sample_random_q(plant)
-    q_goal = [1.09605608, 1.53445794, 1.14210436, -1.68680914, 2.4925027, -1.04304971,-0.48970514]
+    simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat, diagram, traj_source, logger_state, logger_desired, logger_torque, pc_gen, wsg= initialize_simulation()
+    # q_start = sample_random_q(plant)
+    q_start = plant.GetPositions(plant_context, plant.GetModelInstanceByName("iiwa7")) 
+    q_goal  = sample_random_q(plant)
 
     print("Random start:", q_start)
     print("Random goal:", q_goal)
@@ -383,14 +533,23 @@ if __name__ == "__main__":
         q_start=q_start,
         q_goal=q_goal,
         gripper_setpoint=0.02,
-        is_visualizing=True,
+        is_visualizing=False,
         plant=plant,
         scene_graph=scene_graph,
+        diagram=diagram,
         diagram_context=diagram_context,
         plant_context=plant_context,
     )
-    path, iters = rrt_connect_planning(problem, max_iterations=25000, eps_connect=0.05)
-    # print(path)
+
+    def is_collision_free(q):
+        return not problem.collide(q)  # True if q is safe
+    
+    #debugging prints
+    print(f"Start in collision: {problem.start_in_collision}")
+    print(f"Goal in collision: {problem.goal_in_collision}")
+
+
+    path, iters = rrt_connect_planning(problem, max_iterations=5000, eps_connect=0.05)
     print(f"RRT-Connect finished in {iters} iterations.")
     if path is not None:
         print(f"Found path with {len(path)} waypoints.")
