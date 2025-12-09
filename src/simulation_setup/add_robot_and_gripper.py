@@ -14,5 +14,5 @@ def add_robot_and_gripper(plant, parser):
     iiwa_pose = RigidTransform([0, -0.75, 0])   # behind board
     plant.WeldFrames(plant.world_frame(), iiwa_base, iiwa_pose)
 
-    wsg = AddWsg(plant, iiwa, roll=0.0, welded=True)
+    wsg = AddWsg(plant, iiwa, roll=0.0, welded=False)
     return plant, iiwa, wsg

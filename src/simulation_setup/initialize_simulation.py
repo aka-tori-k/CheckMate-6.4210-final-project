@@ -16,7 +16,8 @@ from pydrake.all import (
     MultibodyPlant,
     ConstantVectorSource,
     LogVectorOutput,
-    PiecewisePolynomial
+    PiecewisePolynomial,
+    SchunkWsgPositionController
 )
 import numpy as np
 import sys
@@ -97,7 +98,25 @@ def initialize_simulation(traj=None, realtime_rate=1.0, kp_scale=400.0, kd_scale
     full_state_len = nq + nv
     assert full_state_len == 2 * nq, "controller plant expected q+v = 2*nq"
 
+    # --- Add WSG command trajectory source ---
+    wsg_controller = builder.AddSystem(SchunkWsgPositionController())
+    builder.Connect(
+        wsg_controller.get_generalized_force_output_port(),
+        plant.get_actuation_input_port(wsg),
+    )
+    builder.Connect(
+        plant.get_state_output_port(wsg),
+        wsg_controller.get_state_input_port()
+    )
 
+    wsg_traj_source = ModifiableTrajectorySource(vector_size=1)  # WSG expects scalar command
+    wsg_src_system = builder.AddSystem(wsg_traj_source)
+
+    builder.Connect(
+    wsg_src_system.get_output_port(0),
+    wsg_controller.get_desired_position_input_port()
+    )
+    
     # ---------- Create a modifiable trajectory source and connect the controller ----------
     traj_source = ModifiableTrajectorySource(vector_size=full_state_len)
     traj_src_system = builder.AddSystem(traj_source)  # Add to builder and keep handle
@@ -179,12 +198,12 @@ def initialize_simulation(traj=None, realtime_rate=1.0, kp_scale=400.0, kd_scale
     # Return everything + the handle to the traj_source system so caller can set trajectories at runtime
     return (simulator, plant, plant_context, meshcat, scene_graph, 
             diagram_context, meshcat, diagram, traj_source, logger_state, 
-            logger_desired, logger_torque, pc_gen, wsg)
+            logger_desired, logger_torque, pc_gen, wsg, wsg_traj_source)
 
 
 if __name__ == "__main__":
     # simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat, diagram, traj_source, logger_state, logger_desired, logger_torque, pc_gen, wsg = initialize_simulation()
-    simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat, diagram, traj_source, logger_state, logger_desired, logger_torque, pc_gen, wsg = initialize_simulation()
+    simulator, plant, plant_context, meshcat, scene_graph, diagram_context, meshcat, diagram, traj_source, logger_state, logger_desired, logger_torque, pc_gen, wsg, wsg_traj_source = initialize_simulation()
     simulator.AdvanceTo(10)
 
     # while True:
